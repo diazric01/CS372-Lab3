@@ -29,15 +29,68 @@ async def receive_long_message(reader: asyncio.StreamReader):
     return full_data.decode()
 
 
-async def ftp_server_cmds(reader, writer):
-    message = ""
-    received_message = "ACK.\n"
-    
-    while (message != "close"):
-        message = await receive_long_message(reader)
-        print("Received: ", message)
-        await send_message(received_message, writer)
-    
+async def ftp_list(reader,writer):
+    # Directory list code obtained from "https://docs.python.org/3/library/os.html#os.listdir"
+    # How to move back one directory. "https://stackoverflow.com/questions/12280143/how-to-move-to-one-folder-back-in-python"
+    list_string = os.listdir(path='.')
+
+    new_string = ""
+
+    for ele in list_string:
+        new_string += (ele + " ")
+
+    new_string += "\n"
+    await send_message(new_string, writer)
+
+    return
+
+# Better understanding on os.remove() obtained from "https://www.geeksforgeeks.org/python-os-remove-method/"
+async def ftp_remove(reader,writer, file):
+    location = '.'
+    path = os.path.join(location, file)
+
+    try:
+        os.remove(path)
+        ret_msg = ("% s removed!\n" % file)
+        await send_message(ret_msg, writer)
+    except OSError as error:
+        await send_message("File not succesfully deleted! (Check file exists and was typed correctly)\n", writer)
+
+    return
+
+# Sources used: 
+# "https://www.w3schools.com/python/python_file_open.asp"
+# "https://docs.python.org/3/tutorial/inputoutput.html#reading-and-writing-files"
+async def ftp_get_file(reader, writer):
+    f = open("../../server/myfiles/serverfile.txt", "r")
+    # await send_long_message(writer, f.read())
+    # print(f.read())
+    return
+
+async def ftp_server_cmds(reader, writer):    
+    while (1):
+        command = await receive_long_message(reader)
+        print("HERE ", command)
+
+        split_command = command.split(" ")
+        print("Received: ", split_command[0])
+
+        await send_message("ACK\n", writer)
+
+        if(split_command[0] == "close"):
+            break
+
+        elif(split_command[0] == "list"):
+            await ftp_list(reader, writer)
+            
+        elif(split_command[0] == "remove"):
+            await ftp_remove(reader, writer, split_command[1])
+
+        else:
+            await send_message("Unknown command!\n", writer)
+
+        split_command.clear()
+   
     return
 
 

@@ -35,52 +35,38 @@ async def send_long_message(writer: asyncio.StreamWriter, data):
     await writer.drain()
 
 
-async def ftp_list(reader,writer):
-    # Directory list code obtained from "https://docs.python.org/3/library/os.html#os.listdir"
-    list_string = os.listdir(path='../../server/myfiles')
-
-    # Print format obtained from "https://stackoverflow.com/questions/13893399/python-print-array-with-new-line"
-    print(*list_string, sep='\n')
-
-    # Extra print used for text alignment in terminal
-    print(" ")
-    return
-
-# Better understanding on os.remove() obtained from "https://www.geeksforgeeks.org/python-os-remove-method/"
-async def ftp_remove(reader,writer):
-    file_to_del = input("Enter the file name with extension to delete: \n")
-    location = '../../server/myfiles'
-    path = os.path.join(location, file_to_del)
-
-    try:
-        os.remove(path)
-        print("% s removed!\n" % file_to_del)
-    except OSError as error:
-        print(error)
-        print("File not succesfully deleted!")
-
-    return
-
-
-
-
 async def ftp_client_cmds(reader, writer):
-    command = ""
+    split_command = [""]
     
-    while(command != "close"):
+    while(1):
         command = input("ftp> ")
         await send_long_message(writer, command)
 
         confirmation = await recv_intro_message(reader)
-        # print(confirmation[:len(confirmation)-1])
+        split_command = command.split(" ")
 
-        if(command == "list"):
-            await ftp_list(reader, writer)
+        if(split_command[0] == "close"):
+            break
 
-        if(command == "remove"):
-            await ftp_remove(reader, writer)
+        elif(split_command[0] == "list"):
+            contents = await recv_intro_message(reader)
+            split_contents = contents.split(" ")
+            split_contents[len(split_contents)-1] = " "
+            # Print format obtained from "https://stackoverflow.com/questions/13893399/python-print-array-with-new-line"
+            print(*split_contents, sep='\n')
 
+        elif(split_command[0] == "remove"):
+            # await send_long_message(writer, split_command[1])
+            confirmation = await recv_intro_message(reader)
+            print(confirmation)
 
+        elif(split_command[0] == "get"):
+            nothing =0
+
+        else:
+            confirmation = await recv_intro_message(reader)
+            print(confirmation)
+        
     return
 
 

@@ -15,12 +15,12 @@ def to_hex(number):
     assert number <= 0xffffffff, "Number too large"
     return "{:08x}".format(number)
 
-async def recv_intro_message(reader: asyncio.StreamReader):
+async def recv_message(reader: asyncio.StreamReader):
     full_data = await reader.readline()
     return full_data.decode()
     
 
-async def send_long_message(writer: asyncio.StreamWriter, data):
+async def send_message(writer: asyncio.StreamWriter, data):
     # TODO: Send the length of the message: this should be 8 total hexadecimal digits
     #       This means that ffffffff hex -> 4294967295 dec
     #       is the maximum message length that we can send with this method!
@@ -35,40 +35,56 @@ async def send_long_message(writer: asyncio.StreamWriter, data):
     await writer.drain()
 
 
-async def connect(i):
+async def connect():
     reader, writer = await asyncio.open_connection(IP, DPORT)
 
-    """
-    Part 1: Introduction
-    """
-    # TODO: receive the introduction message by implementing `recv_intro_message` above.
-    intro = await recv_intro_message(reader)
+    intro = await recv_message(reader)
     print(intro)
 
-    long_msg = "This is a very long message" * 100 + f" AND I AM CLIENT {i}"
-
-    """
-    Part 2: Long Message Exchange Protocol
-    """
+    password = input("Enter the password: ")
 
     # Send message
-    await send_long_message(writer, long_msg)
+    await send_message(writer, password)
 
+    response = await recv_message(reader)
 
-    print("Done sending", i)
+    tries = 0
 
+    # Check to see if the password was correct
+    #await check_authorization(response, reader, writer, tries)
 
     return 0
 
+async def check_authorization(response, reader, writer, tries):
+    if (response == "Incorrect Password!"):
+        if (tries == 3):
+            print("Too many failed attempts.")
+            return 0
+        else:
+            print(response)
+            tries +=1
+            #send new password attempt
+            password = input("Enter the password: ")
+
+            await send_message(writer, password)
+            
+            response = await recv_message(reader)
+            await check_authorization(response, reader, writer, tries)
+    else:
+        print(response)
+    
+    return 0
+
+
 async def main():
     tasks = []
-    #for i in range(100):
-        #tasks.append(connect(str(i).rjust(8, '0')))
+    # for i in range(100):
+    #     tasks.append(connect())
 
-    tasks.append(connect(str(i).rjust(8, '0')))
+    tasks.append(connect())
 
     await asyncio.gather(*tasks)
-    print("done")
+    print("Connection Closed")
 
 # Run the `main()` function
 if __name__ == "__main__":

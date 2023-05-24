@@ -10,10 +10,9 @@ CHUNK = 100
 
 
 # TODO: Implement me for Part 1!
-async def send_intro_message(writer):
-    intro_message = "Hello! Welcome to my (diazric) server! I'm majoring in CS\n"
+async def send_message(writer, server_message):
 
-    writer.write(intro_message.encode())
+    writer.write(server_message.encode())
     await writer.drain()
 
 
@@ -31,23 +30,29 @@ async def receive_long_message(reader: asyncio.StreamReader):
 
 
 async def handle_client(reader, writer):
-    """
-    Part 1: Introduction
-    """
-    # TODO: send the introduction message by implementing `send_intro_message` above.
-    await send_intro_message(writer)
 
-    """
-    Part 2: Long Message Exchange Protocol
-    """
-    # TODO: Implement function above
+    # TODO: send the introduction message by implementing `send_intro_message` above.
+    await send_message(writer, "Hello! Welcome to my (diazric) server! I'm majoring in CS\n")
+
+    tries = 0
     message = await receive_long_message(reader)
 
-    # I'm only printing the last 8 characters of the message here because it's long
-    print("done: " +  message[-8:])
+    if (message == "cs372"):
+        await send_message(writer, "Access Granted!")
+        writer.close()
+        await writer.wait_closed()
+    else:
+        #while (tries != 3):
+        await send_message(writer, "Incorrect Password!")
+        writer.close()
+        await writer.wait_closed()
+        # tries +=1
+        # if (tries == 3):
+        #     writer.close()
+        #     await writer.wait_closed()
+        # message = await receive_long_message(reader)
 
-    writer.close()
-    await writer.wait_closed()
+    
 
 
 async def main():

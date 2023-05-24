@@ -62,11 +62,18 @@ async def ftp_client_cmds(reader, writer):
         elif(split_command[0] == "get"):
             # Get the file here
             file_contents = await recv_intro_message(reader)
-            try:
-                with open(split_command[1], 'w') as f:
-                    f.write(file_contents)
-            except:
-                print("Error Downloading File (client issue)\n")
+
+            error_check_str = file_contents.split(" ")
+
+            if(error_check_str[0] != "NAK:"):
+                try:
+                    with open(split_command[1], 'w') as f:
+                        f.write(file_contents)
+                    f.close()
+                except:
+                    print("Error Downloading File (client issue)\n")
+            else:
+                print(file_contents)
 
             
 

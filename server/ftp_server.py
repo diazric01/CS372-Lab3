@@ -54,7 +54,7 @@ async def ftp_remove(reader,writer, file):
         ret_msg = ("% s Removed!\n" % file)
         await send_message(ret_msg, writer)
     except OSError as error:
-        await send_message("File not succesfully deleted! (Check file exists and was typed correctly)\n", writer)
+        await send_message("NAK: File not succesfully deleted! (Check file exists and was typed correctly)\n", writer)
 
     return
 
@@ -64,9 +64,10 @@ async def ftp_get_file(reader, writer, file):
     try:
         f = open(file, 'r', encoding="utf-8")
         file_contents = f.read()
+        f.close()
         await send_message(file_contents, writer)
-    except OSError as error:
-        error_msg = ("Trouble getting file: %s (Check file exists and was typed correctly)\n" % file)
+    except OSError:
+        error_msg = ("NAK: Trouble getting file: %s (Check file exists and was typed correctly)\n" % file)
         await send_message(error_msg, writer)
 
     return
@@ -74,10 +75,7 @@ async def ftp_get_file(reader, writer, file):
 async def ftp_server_cmds(reader, writer):    
     while (1):
         command = await receive_long_message(reader)
-        print("HERE ", command)
-
         split_command = command.split(" ")
-        print("Received: ", split_command[0])
 
         await send_message("ACK\n", writer)
 

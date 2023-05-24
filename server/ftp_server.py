@@ -38,35 +38,37 @@ async def handle_client(reader, writer):
 
     await send_message(intro_message, writer)
 
-    # TODO: Implement function above
-    message = await receive_long_message(reader)
-
     key = "cs372"
+    tries = 0
 
-    if(message == key):
-        await send_message(pass_message, writer)
-        writer.close()
-        await writer.wait_closed()
-    else:
-        await send_message(deny_message , writer)
+    while(tries != 3):
+        message = await receive_long_message(reader)
 
-    message = await receive_long_message(reader)
+        if(message == key):
+            await send_message(pass_message, writer)
+            break
+        else:
+            await send_message(deny_message , writer)
+        
+        tries +=1
 
-    if(message == key):
-        await send_message(pass_message, writer)
-        writer.close()
-        await writer.wait_closed()
-    else:
-        await send_message(deny_message, writer)
+    # message = await receive_long_message(reader)
 
-    message = await receive_long_message(reader)
+    # if(message == key):
+    #     await send_message(pass_message, writer)
+    #     writer.close()
+    #     await writer.wait_closed()
+    # else:
+    #     await send_message(deny_message, writer)
 
-    if(message == key):
-        await send_message(pass_message, writer)
-        writer.close()
-        await writer.wait_closed()
-    else:
-        await send_message(deny_message, writer)
+    # message = await receive_long_message(reader)
+
+    # if(message == key):
+    #     await send_message(pass_message, writer)
+    #     writer.close()
+    #     await writer.wait_closed()
+    # else:
+    #     await send_message(deny_message, writer)
 
 
     writer.close()

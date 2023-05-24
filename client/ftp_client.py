@@ -51,29 +51,26 @@ async def connect():
     
     print(response)
 
-    if(response != "Correct! Welcome to my (diazric) server! I'm majoring in CS\n"):
-        
-        password = input("Enter the password: ")
-        await send_long_message(writer, password)
-        response = await recv_intro_message(reader)
+    tries = 0
+
+    while(tries != 3):
 
         if(response != "Correct! Welcome to my (diazric) server! I'm majoring in CS\n"):
-            print(response)
-            password = input("Enter the password: ")
-            await send_long_message(writer, password)
-            response = await recv_intro_message(reader)
-
-            if(response != "Correct! Welcome to my (diazric) server! I'm majoring in CS\n"):
-                print("Too many failed attempts! Bye!")
-            else:
+            tries +=1
+            if(tries < 3):
+                password = input("Enter the password: ")
+                await send_long_message(writer, password)
+                response = await recv_intro_message(reader)
                 print(response)
-                return 0
         else:
-            print(response)
-            return 0
-    else:
-        return 0
+            #grant access to user, continue implementation here
+            break
 
+    if ((tries != 3)):
+        #grant access to user, continue implementation here
+        return 0
+    else:
+        print("Too many failed attempts! Bye!")
 
     return 0
 

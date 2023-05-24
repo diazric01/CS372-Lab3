@@ -47,25 +47,41 @@ async def connect():
     await send_long_message(writer, password)
 
     response = await recv_message(reader)
-    tries = 0
 
-    await check_authorization(response, reader, writer,tries)
+    if (response == "Incorrect Password!"):
+        print("NAK: ",response)
+    else:
+        print(response)
+
+
+    # password = input("Enter the password: ")
+
+    # # Send message
+    # await send_long_message(writer, password)
+
+    # response = await recv_message(reader)
+
+    # if (response == "Incorrect Password!"):
+    #     print("NAK: ",response)
+    # else:
+    #     print(response)
+    
 
     return 0
 
+
 async def check_authorization(response, reader, writer, tries):
     if (response == "Incorrect Password!"):
-        if (tries == 3):
-            print("NAK: Too many failed attempts.")
-            return 0
-        else:
-            print("NAK: ",response)
-            tries +=1
-            #send new password attempt
-            # password = input("Enter the password: ")
+        print("NAK: ",response)
+        tries +=1
 
-            # await send_message(writer, password)
-            # response = await recv_message(reader)
+        #send new password attempt
+        password = input("Enter the password: ")
+
+        await send_long_message(writer, password)
+
+        response = await recv_message(reader)
+        print(response)
             # check_authorization(response, reader, writer, tries)
     else:
         print(response)

@@ -34,7 +34,6 @@ async def handle_client(reader, writer):
     # TODO: send the introduction message by implementing `send_intro_message` above.
     await send_message(writer, "Hello! Welcome to my (diazric) server! I'm majoring in CS\n")
 
-    tries = 0
     message = await receive_long_message(reader)
 
     if (message == "cs372"):
@@ -42,18 +41,21 @@ async def handle_client(reader, writer):
         writer.close()
         await writer.wait_closed()
     else:
-        #while (tries != 3):
         await send_message(writer, "Incorrect Password!")
         writer.close()
         await writer.wait_closed()
-        # tries +=1
-        # if (tries == 3):
-        #     writer.close()
-        #     await writer.wait_closed()
-        # message = await receive_long_message(reader)
 
+    # message = await receive_long_message(reader)
 
-    
+    # if (message == "cs372"):
+    #     await send_message(writer, "Access Granted!")
+    #     writer.close()
+    #     await writer.wait_closed()
+    # else:
+    #     #while (tries != 3):
+    #     await send_message(writer, "Incorrect Password!")
+
+   
 
 
 async def main():

@@ -15,10 +15,10 @@ def to_hex(number):
     assert number <= 0xffffffff, "Number too large"
     return "{:08x}".format(number)
 
-async def recv_message(reader: asyncio.StreamReader):
+async def recv_intro_message(reader: asyncio.StreamReader):
     full_data = await reader.readline()
     return full_data.decode()
-    
+
 
 async def send_long_message(writer: asyncio.StreamWriter, data):
     # TODO: Send the length of the message: this should be 8 total hexadecimal digits
@@ -38,7 +38,8 @@ async def send_long_message(writer: asyncio.StreamWriter, data):
 async def connect():
     reader, writer = await asyncio.open_connection(IP, DPORT)
 
-    intro = await recv_message(reader)
+    # TODO: receive the introduction message by implementing `recv_intro_message` above.
+    intro = await recv_intro_message(reader)
     print(intro)
 
     password = input("Enter the password: ")
@@ -46,53 +47,40 @@ async def connect():
     # Send message
     await send_long_message(writer, password)
 
-    response = await recv_message(reader)
-
-    if (response == "Incorrect Password!"):
-        print("NAK: ",response)
-    else:
-        print(response)
-
-
-    # password = input("Enter the password: ")
-
-    # # Send message
-    # await send_long_message(writer, password)
-
-    # response = await recv_message(reader)
-
-    # if (response == "Incorrect Password!"):
-    #     print("NAK: ",response)
-    # else:
-    #     print(response)
+    response = await recv_intro_message(reader)
     
+    print(response)
 
-    return 0
-
-
-async def check_authorization(response, reader, writer, tries):
-    if (response == "Incorrect Password!"):
-        print("NAK: ",response)
-        tries +=1
-
-        #send new password attempt
+    if(response != "Correct password. Welcome to my server!"):
+        
         password = input("Enter the password: ")
-
         await send_long_message(writer, password)
+        response = await recv_intro_message(reader)
 
-        response = await recv_message(reader)
-        print(response)
-            # check_authorization(response, reader, writer, tries)
+        if(response != "Correct password. Welcome to my server!"):
+            print(response)
+            password = input("Enter the password: ")
+            await send_long_message(writer, password)
+            response = await recv_intro_message(reader)
+
+            if(response != "Correct password. Welcome to my server!"):
+                print("Too many failed attempts! Bye!")
+            else:
+                print(response)
+                return 0
+        else:
+            print(response)
+            return 0
     else:
-        print(response)
-    
-    return 0
+        return 0
 
+
+    return 0
 
 async def main():
     tasks = []
-    # for i in range(100):
-    #     tasks.append(connect())
+    #for i in range(100):
+        #tasks.append(connect(str(i).rjust(8, '0')))
 
     tasks.append(connect())
 

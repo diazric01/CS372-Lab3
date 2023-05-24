@@ -10,9 +10,9 @@ CHUNK = 100
 
 
 # TODO: Implement me for Part 1!
-async def send_message(writer, server_message):
+async def send_message(message, writer):
 
-    writer.write(server_message.encode())
+    writer.write(message.encode())
     await writer.drain()
 
 
@@ -31,31 +31,46 @@ async def receive_long_message(reader: asyncio.StreamReader):
 
 async def handle_client(reader, writer):
 
-    # TODO: send the introduction message by implementing `send_intro_message` above.
-    await send_message(writer, "Hello! Welcome to my (diazric) server! I'm majoring in CS\n")
+    # TODO: send the introduction message by implementing `send_message` above.
+    intro_message = "Hello! Welcome to my (diazric) server! I'm majoring in CS\n"
+    deny_message = "Incorrect password. Try Again! \n"
+    pass_message = "Correct password. Welcome to my server!"
 
+    await send_message(intro_message, writer)
+
+    # TODO: Implement function above
     message = await receive_long_message(reader)
 
-    if (message == "cs372"):
-        await send_message(writer, "Access Granted!")
+    key = "cs372"
+
+    if(message == key):
+        await send_message(pass_message, writer)
         writer.close()
         await writer.wait_closed()
     else:
-        await send_message(writer, "Incorrect Password!")
+        await send_message(deny_message , writer)
+
+    message = await receive_long_message(reader)
+
+    if(message == key):
+        await send_message(pass_message, writer)
         writer.close()
         await writer.wait_closed()
+    else:
+        await send_message(deny_message, writer)
 
-    # message = await receive_long_message(reader)
+    message = await receive_long_message(reader)
 
-    # if (message == "cs372"):
-    #     await send_message(writer, "Access Granted!")
-    #     writer.close()
-    #     await writer.wait_closed()
-    # else:
-    #     #while (tries != 3):
-    #     await send_message(writer, "Incorrect Password!")
+    if(message == key):
+        await send_message(pass_message, writer)
+        writer.close()
+        await writer.wait_closed()
+    else:
+        await send_message(deny_message, writer)
 
-   
+
+    writer.close()
+    await writer.wait_closed()
 
 
 async def main():

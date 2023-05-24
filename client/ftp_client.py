@@ -20,7 +20,7 @@ async def recv_message(reader: asyncio.StreamReader):
     return full_data.decode()
     
 
-async def send_message(writer: asyncio.StreamWriter, data):
+async def send_long_message(writer: asyncio.StreamWriter, data):
     # TODO: Send the length of the message: this should be 8 total hexadecimal digits
     #       This means that ffffffff hex -> 4294967295 dec
     #       is the maximum message length that we can send with this method!
@@ -44,32 +44,29 @@ async def connect():
     password = input("Enter the password: ")
 
     # Send message
-    await send_message(writer, password)
+    await send_long_message(writer, password)
 
     response = await recv_message(reader)
-
     tries = 0
 
-    # Check to see if the password was correct
-    #await check_authorization(response, reader, writer, tries)
+    await check_authorization(response, reader, writer,tries)
 
     return 0
 
 async def check_authorization(response, reader, writer, tries):
     if (response == "Incorrect Password!"):
         if (tries == 3):
-            print("Too many failed attempts.")
+            print("NAK: Too many failed attempts.")
             return 0
         else:
-            print(response)
+            print("NAK: ",response)
             tries +=1
             #send new password attempt
-            password = input("Enter the password: ")
+            # password = input("Enter the password: ")
 
-            await send_message(writer, password)
-            
-            response = await recv_message(reader)
-            await check_authorization(response, reader, writer, tries)
+            # await send_message(writer, password)
+            # response = await recv_message(reader)
+            # check_authorization(response, reader, writer, tries)
     else:
         print(response)
     

@@ -29,6 +29,18 @@ async def receive_long_message(reader: asyncio.StreamReader):
     return full_data.decode()
 
 
+async def ftp_server_cmds(reader, writer):
+    message = ""
+    received_message = "ACK.\n"
+    
+    while (message != "close"):
+        message = await receive_long_message(reader)
+        print("Received: ", message)
+        await send_message(received_message, writer)
+    
+    return
+
+
 async def handle_client(reader, writer):
 
     # TODO: send the introduction message by implementing `send_message` above.
@@ -46,6 +58,7 @@ async def handle_client(reader, writer):
 
         if(message == key):
             await send_message(pass_message, writer)
+            await ftp_server_cmds(reader, writer)
             break
         else:
             await send_message(deny_message , writer)
@@ -54,6 +67,7 @@ async def handle_client(reader, writer):
 
     writer.close()
     await writer.wait_closed()
+    print("Server: Closed Connection")
 
 
 async def main():

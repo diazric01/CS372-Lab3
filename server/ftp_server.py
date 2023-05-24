@@ -51,20 +51,24 @@ async def ftp_remove(reader,writer, file):
 
     try:
         os.remove(path)
-        ret_msg = ("% s removed!\n" % file)
+        ret_msg = ("% s Removed!\n" % file)
         await send_message(ret_msg, writer)
     except OSError as error:
         await send_message("File not succesfully deleted! (Check file exists and was typed correctly)\n", writer)
 
     return
 
-# Sources used: 
-# "https://www.w3schools.com/python/python_file_open.asp"
-# "https://docs.python.org/3/tutorial/inputoutput.html#reading-and-writing-files"
-async def ftp_get_file(reader, writer):
-    f = open("../../server/myfiles/serverfile.txt", "r")
-    # await send_long_message(writer, f.read())
-    # print(f.read())
+# Sources used: "https://docs.python.org/3/tutorial/inputoutput.html#reading-and-writing-files"
+async def ftp_get_file(reader, writer, file):
+
+    try:
+        f = open(file, 'r', encoding="utf-8")
+        file_contents = f.read()
+        await send_message(file_contents, writer)
+    except OSError as error:
+        error_msg = ("Trouble getting file: %s (Check file exists and was typed correctly)\n" % file)
+        await send_message(error_msg, writer)
+
     return
 
 async def ftp_server_cmds(reader, writer):    
@@ -85,6 +89,9 @@ async def ftp_server_cmds(reader, writer):
             
         elif(split_command[0] == "remove"):
             await ftp_remove(reader, writer, split_command[1])
+
+        elif(split_command[0] == "get"):
+            await ftp_get_file(reader, writer, split_command[1])
 
         else:
             await send_message("Unknown command!\n", writer)

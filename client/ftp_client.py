@@ -56,12 +56,19 @@ async def ftp_client_cmds(reader, writer):
             print(*split_contents, sep='\n')
 
         elif(split_command[0] == "remove"):
-            # await send_long_message(writer, split_command[1])
             confirmation = await recv_intro_message(reader)
             print(confirmation)
 
         elif(split_command[0] == "get"):
-            nothing =0
+            # Get the file here
+            file_contents = await recv_intro_message(reader)
+            try:
+                with open(split_command[1], 'w') as f:
+                    f.write(file_contents)
+            except:
+                print("Error Downloading File (client issue)\n")
+
+            
 
         else:
             confirmation = await recv_intro_message(reader)

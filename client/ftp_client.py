@@ -51,19 +51,19 @@ async def connect():
     
     print(response)
 
-    if(response != "Correct password. Welcome to my server!"):
+    if(response != "Correct! Welcome to my (diazric) server! I'm majoring in CS\n"):
         
         password = input("Enter the password: ")
         await send_long_message(writer, password)
         response = await recv_intro_message(reader)
 
-        if(response != "Correct password. Welcome to my server!"):
+        if(response != "Correct! Welcome to my (diazric) server! I'm majoring in CS\n"):
             print(response)
             password = input("Enter the password: ")
             await send_long_message(writer, password)
             response = await recv_intro_message(reader)
 
-            if(response != "Correct password. Welcome to my server!"):
+            if(response != "Correct! Welcome to my (diazric) server! I'm majoring in CS\n"):
                 print("Too many failed attempts! Bye!")
             else:
                 print(response)

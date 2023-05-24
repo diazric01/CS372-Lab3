@@ -61,7 +61,8 @@ async def connect():
                 password = input("Enter the password: ")
                 await send_long_message(writer, password)
                 response = await recv_intro_message(reader)
-                print(response)
+                if((tries != 2) or (response == "Correct! Welcome to my (diazric) server! I'm majoring in CS\n")):
+                    print(response)
         else:
             #grant access to user, continue implementation here
             break

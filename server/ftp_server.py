@@ -32,7 +32,7 @@ async def receive_long_message(reader: asyncio.StreamReader):
 async def handle_client(reader, writer):
 
     # TODO: send the introduction message by implementing `send_message` above.
-    intro_message = "Please enter the correct password to access the server\n"
+    intro_message = "Please enter the correct password within 3 tries to access the server.\n"
     deny_message = "Incorrect password. Try Again! \n"
     pass_message = "Correct! Welcome to my (diazric) server! I'm majoring in CS\n"
 
@@ -51,25 +51,6 @@ async def handle_client(reader, writer):
             await send_message(deny_message , writer)
         
         tries +=1
-
-    # message = await receive_long_message(reader)
-
-    # if(message == key):
-    #     await send_message(pass_message, writer)
-    #     writer.close()
-    #     await writer.wait_closed()
-    # else:
-    #     await send_message(deny_message, writer)
-
-    # message = await receive_long_message(reader)
-
-    # if(message == key):
-    #     await send_message(pass_message, writer)
-    #     writer.close()
-    #     await writer.wait_closed()
-    # else:
-    #     await send_message(deny_message, writer)
-
 
     writer.close()
     await writer.wait_closed()

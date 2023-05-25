@@ -54,7 +54,7 @@ async def ftp_remove(reader,writer, file):
         ret_msg = ("% s Removed!\n" % file)
         await send_message(ret_msg, writer)
     except OSError as error:
-        await send_message("NAK: File not succesfully deleted! (Check file exists and was typed correctly)\n", writer)
+        await send_message("NAK File not succesfully deleted! (Check file exists and was typed correctly)\n", writer)
 
     return
 
@@ -67,32 +67,67 @@ async def ftp_get_file(reader, writer, file):
         f.close()
         await send_message(file_contents, writer)
     except OSError:
-        error_msg = ("NAK: Trouble getting file: %s (Check file exists and was typed correctly)\n" % file)
+        error_msg = ("NAK Trouble getting file: %s (Check file exists and was typed correctly)\n" % file)
         await send_message(error_msg, writer)
 
     return
 
-async def ftp_server_cmds(reader, writer):    
+async def ftp_put_file(reader, writer, file):
+    error_sent = False
+    file_contents = await receive_long_message(reader)
+
+    split_contents = file_contents.split(" ")
+
+    if(split_contents[0] != "NAK"):
+        try:
+            with open(file, 'w') as f:
+                f.write(file_contents)
+            f.close()
+        except:
+            error_sent = True
+            await send_message("NAK Error Creating File\n", writer)
+    else:
+        error_sent = True
+        await send_message("NAK Error Downloading File\n", writer)
+
+    if(error_sent == False):
+        await send_message("ACK Succesfull\n",writer)
+
+    
+    
+    return
+
+async def ftp_server_cmds(reader, writer):
+    # I realized too late that a switch case would've made for cleaner code.
     while (1):
         command = await receive_long_message(reader)
         split_command = command.split(" ")
 
-        await send_message("ACK\n", writer)
+        # await send_message("ACK\n", writer)
 
         if(split_command[0] == "close"):
+            await send_message("ACK\n", writer)
             break
 
         elif(split_command[0] == "list"):
+            await send_message("ACK\n", writer)
             await ftp_list(reader, writer)
             
         elif(split_command[0] == "remove"):
+            await send_message("ACK\n", writer)
             await ftp_remove(reader, writer, split_command[1])
 
         elif(split_command[0] == "get"):
+            await send_message("ACK\n", writer)
             await ftp_get_file(reader, writer, split_command[1])
 
+        elif(split_command[0] == "put"):
+            await send_message("ACK\n", writer)
+            await ftp_put_file(reader,writer, split_command[1])
+
+
         else:
-            await send_message("Unknown command!\n", writer)
+            await send_message("NAK Unknown command!\n", writer)
 
         split_command.clear()
    

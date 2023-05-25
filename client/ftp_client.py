@@ -65,7 +65,7 @@ async def ftp_client_cmds(reader, writer):
 
             error_check_str = file_contents.split(" ")
 
-            if(error_check_str[0] != "NAK:"):
+            if(error_check_str[0] != "NAK"):
                 try:
                     with open(split_command[1], 'w') as f:
                         f.write(file_contents)
@@ -75,11 +75,22 @@ async def ftp_client_cmds(reader, writer):
             else:
                 print(file_contents)
 
-            
+        elif(split_command[0] == "put"):
+            try:
+                f = open(split_command[1], 'r', encoding="utf-8")
+                file_contents = f.read()
+                f.close()
+                await send_long_message(writer,file_contents)
+            except OSError:
+                print("Trouble getting file: %s (Check file exists and was typed correctly)\n" % split_command[1])
+                error_msg = ("NAK Trouble uploading file")
+                await send_long_message(writer,error_msg)
+
+            await recv_intro_message(reader)
 
         else:
-            confirmation = await recv_intro_message(reader)
-            print(confirmation)
+            server_message = await recv_intro_message(reader)
+            print(server_message)
         
     return
 

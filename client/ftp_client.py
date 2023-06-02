@@ -6,7 +6,7 @@ from time import sleep
 from threading import Thread
 import asyncio
 
-IP, DPORT = 'localhost', 8080
+IP, DPORT = 'localhost', 8093
 
 # Helper function that converts integer into 8 hexadecimal digits
 # Assumption: integer fits in 8 hexadecimal digits
